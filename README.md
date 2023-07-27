@@ -1,6 +1,6 @@
 # toy-map
 
-A simplified HashMap implemented in open addressing with linear probing.
+A simplified HashMap implemented in open addressing (linear probing).
 
 ## Example
 ```java

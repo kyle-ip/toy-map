@@ -12,7 +12,7 @@ import java.util.Objects;
 public class ToyMap<K, V> {
 
     /**
-     * 使用数组保存，数组的下标即为 key 的 hash 值
+     * 使用数组保存，数组的下标即为 key 的 hash 值（mod）
      */
     private Node<K, V>[] nodes;
 
@@ -24,7 +24,7 @@ public class ToyMap<K, V> {
     /**
      * 最大容量
      */
-    private static final int MAXIMUM_CAPACITY = 1 << 30;
+    private static final int MAX_CAPACITY = 1 << 30;
 
     /**
      * 装载因子，达到阈值后触发扩容，避免由于填充元素过多、哈希冲突频繁（待测试）
@@ -47,17 +47,30 @@ public class ToyMap<K, V> {
         nodes = new Node[capacity];
     }
 
+    /**
+     *
+     * @param key
+     * @param value
+     */
     public void put(K key, V value) {
+        // 插入前判断，如果已经达到阈值则触发扩容。
         if (size >= DEFAULT_LOAD_FACTOR * nodes.length) {
             resize();
         }
-        int index = getIndex(key, nodes);
-        if (nodes[index] == null) {
+
+        // 定位，如果找到一个空的位置则表示插入（长度 +1），否则表示更新。
+        int idx = getIndex(key, nodes);
+        if (nodes[idx] == null) {
             size++;
         }
-        nodes[index] = new Node<>(key, value);
+        nodes[idx] = new Node<>(key, value);
     }
 
+    /**
+     *
+     * @param key
+     * @return
+     */
     public V get(K key) {
         int idx = getIndex(key, nodes);
         Node<K, V> node = nodes[idx];
@@ -67,6 +80,12 @@ public class ToyMap<K, V> {
         return node.value;
     }
 
+    /**
+     *
+     * @param key
+     * @param nodes
+     * @return
+     */
     private int getIndex(K key, Node<K, V>[] nodes) {
         int idx = 0;
         if (key != null) {
@@ -87,8 +106,12 @@ public class ToyMap<K, V> {
     private void resize() {
 
         // 此处简化实现，默认扩容为原容量的两倍（需要避免溢出）。
-        int oldCapacity = nodes.length;
-        int newCapacity = oldCapacity >= MAXIMUM_CAPACITY / 2? MAXIMUM_CAPACITY: oldCapacity * 2;
+        int oldCapacity = nodes.length, newCapacity;
+        if (oldCapacity >= MAX_CAPACITY / 2) {
+            newCapacity = MAX_CAPACITY;
+        } else {
+            newCapacity = oldCapacity * 2;
+        }
 
         // 非空的元素迁移到新的数组。
         Node<K, V>[] newNodes = new Node[newCapacity];
