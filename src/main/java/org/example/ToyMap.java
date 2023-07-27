@@ -27,7 +27,7 @@ public class ToyMap<K, V> {
     private static final int MAXIMUM_CAPACITY = 1 << 30;
 
     /**
-     * 装载因子，达到阈值后触发扩容，避免由于填充元素过多、哈希冲突频繁
+     * 装载因子，达到阈值后触发扩容，避免由于填充元素过多、哈希冲突频繁（待测试）
      */
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
@@ -68,11 +68,14 @@ public class ToyMap<K, V> {
     }
 
     private int getIndex(K key, Node<K, V>[] nodes) {
-        // hashCode() 可能返回负数，不能直接取模作为下标，需要先取 abs。
-        int idx = key == null? 0: Math.abs(key.hashCode()) % nodes.length;
+        int idx = 0;
+        if (key != null) {
+            // hashCode() 可能返回负数，不能直接取模作为下标，需要先取 abs。
+            idx = Math.abs(key.hashCode()) % nodes.length;
+        }
         while (nodes[idx] != null && (!Objects.equals(key, nodes[idx].key))) {
             // 开放寻址法：此处使用简单的线性探测，即如果当前位置已经被占据，且该位置的 key 与目标的 key 不同，则取下一个位置（越界则从头开始）。
-            // 由于 nodes 满则会触发扩容，必然会找到一个位置能放入当前的元素。
+            // 由于 nodes 满则会触发扩容，必然会找到一个位置能放入当前的元素，不会死循环。
             idx = (idx + 1) % nodes.length;
         }
         return idx;
@@ -92,7 +95,7 @@ public class ToyMap<K, V> {
         for (int i = 0; i < oldCapacity; i++) {
             Node<K, V> node = nodes[i];
             if (node != null) {
-                // 置空旧数组，并在新数组中寻找下标、放入元素。
+                // 置空旧数组中的该项，并在新数组中寻找下标、放入元素。
                 nodes[i] = null;
                 int newIndex = getIndex(node.key, newNodes);
                 newNodes[newIndex] = node;

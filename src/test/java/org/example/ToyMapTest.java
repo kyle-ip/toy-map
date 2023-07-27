@@ -43,13 +43,16 @@ class ToyMapTest {
         int[] nums = strToIntArray(arguments.getString(0));
         assert nums != null;
 
-        ToyMap<Integer, Integer> tm = new ToyMap<>(nums.length);
+        ToyMap<Integer, Integer> tm1 = new ToyMap<>(nums.length);
+        ToyMap<String, String> tm2 = new ToyMap<>(nums.length);
         for (int i = 0; i < nums.length; i++) {
-            tm.put(nums[i], nums[nums.length - i - 1]);
+            tm1.put(nums[i], nums[nums.length - i - 1]);
+            tm2.put(String.valueOf(nums[i]), String.valueOf(nums[nums.length - i - 1]));
         }
 
         for (int i = 0; i < nums.length; i++) {
-            assertEquals(nums[nums.length - i - 1], tm.get(nums[i]));
+            assertEquals(nums[nums.length - i - 1], tm1.get(nums[i]));
+            assertEquals(String.valueOf(nums[nums.length - i - 1]), tm2.get(String.valueOf(nums[i])));
         }
     }
 
