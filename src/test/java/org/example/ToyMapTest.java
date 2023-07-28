@@ -29,7 +29,7 @@ class ToyMapTest {
     }
 
     @BeforeAll
-    private static void init() {
+    public static void init() {
         //
     }
 

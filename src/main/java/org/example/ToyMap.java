@@ -1,15 +1,23 @@
 package org.example;
 
+import java.io.Serializable;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 
 /**
  * 开放寻址法实现的 Map（非线程安全）
  *
+ * @author kyle ip
  * @param <K>
  * @param <V>
  */
-public class ToyMap<K, V> {
+public class ToyMap<K,V> extends AbstractMap<K,V>
+        implements Map<K,V>, Cloneable, Serializable {
+
+    private static final long serialVersionUID = 362498820763181265L;
 
     /**
      * 使用数组保存，数组的下标即为 key 的 hash 值（mod）
@@ -47,12 +55,7 @@ public class ToyMap<K, V> {
         nodes = new Node[capacity];
     }
 
-    /**
-     *
-     * @param key
-     * @param value
-     */
-    public void put(K key, V value) {
+    public V put(K key, V value) {
         // 插入前判断，如果已经达到阈值则触发扩容。
         if (size >= DEFAULT_LOAD_FACTOR * nodes.length) {
             resize();
@@ -64,15 +67,17 @@ public class ToyMap<K, V> {
             size++;
         }
         nodes[idx] = new Node<>(key, value);
+        return value;
     }
 
-    /**
-     *
-     * @param key
-     * @return
-     */
-    public V get(K key) {
-        int idx = getIndex(key, nodes);
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+        return null;
+    }
+
+    @Override
+    public V get(Object key) {
+        int idx = getIndex((K) key, nodes);
         Node<K, V> node = nodes[idx];
         if (node == null) {
             return null;
@@ -80,12 +85,7 @@ public class ToyMap<K, V> {
         return node.value;
     }
 
-    /**
-     *
-     * @param key
-     * @param nodes
-     * @return
-     */
+
     private int getIndex(K key, Node<K, V>[] nodes) {
         int idx = 0;
         if (key != null) {
@@ -100,9 +100,6 @@ public class ToyMap<K, V> {
         return idx;
     }
 
-    /**
-     *
-     */
     private void resize() {
 
         // 此处简化实现，默认扩容为原容量的两倍（需要避免溢出）。
@@ -135,6 +132,15 @@ public class ToyMap<K, V> {
 
     public int capacity() {
         return nodes.length;
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new InternalError(e);
+        }
     }
 
     private static class Node<K, V> {
